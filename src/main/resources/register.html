@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Document</title>
+    <link href="https://www.google.com" rel="preconnect"/>
+    <link crossorigin href="https://www.gstatic.com" rel="preconnect"/>
+    <script
+            async
+            defer
+            src="https://www.google.com/recaptcha/api.js"
+    ></script>
+</head>
+<body>
+<input id="user-name" type="text"/>
+<input id="user-password" type="password"/>
+<div
+        class="g-recaptcha"
+        data-sitekey="${recaptcha-site-key}"
+></div>
+<br/>
+<input id="submit" type="submit" value="Submit"/>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<script src="../js/jsencrypt.min.js"></script>
+<script>
+    $("#submit").click(function () {
+        const encrypt = new JSEncrypt();
+        encrypt.setPublicKey("-----BEGIN PUBLIC KEY-----${public-key}-----END PUBLIC KEY-----");
+        $.get(
+            "${pixiv-central-url}/user/register?reCaptchaResponse=" +
+            $("#g-recaptcha-response")[0].value +
+            "&userName=" +
+            encrypt.encrypt($("#user-name")[0].value).replaceAll(/=/g, "*").replaceAll(/\+/g, "$") +
+            "&userPassword=" +
+            encrypt.encrypt($("#user-password")[0].value).replaceAll(/=/g, "*").replaceAll(/\+/g, "$"),
+            function (r) {
+                if (r.code !== 200) {
+                    console.log("登录失败");
+                }
+            }
+        );
+    });
+</script>
+</body>
+</html>
